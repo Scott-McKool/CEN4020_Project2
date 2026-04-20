@@ -89,6 +89,25 @@ def get_data():
         # if not, return the whole catalog
         return jsonify(db.full_catalog())
 
+# search courses by any combination of filter parameters
+@app.route('/api/search', methods=['GET'])
+def search_courses():
+
+    professor   = request.args.get('professor',   '').strip()
+    subject     = request.args.get('subject',     '').strip()
+    level       = request.args.get('level',       '').strip()
+    course_code = request.args.get('course_code', '').strip()
+    semester    = request.args.get('semester',    '').strip()
+    days        = request.args.get('days',        '').strip()
+    crn         = request.args.get('crn',         '').strip()
+
+    results = db.search_courses(
+        professor=professor, subject=subject, level=level,
+        course_code=course_code, semester=semester, days=days, crn=crn,
+    )
+    return jsonify(results)
+
+
 # add a new class to the catalog
 @app.route('/api/data/row/', methods=['POST'])
 @login_required
