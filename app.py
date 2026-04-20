@@ -62,7 +62,7 @@ def login_post():
     password = request.form.get('password')
     
     # test login credentials
-    if username == 'debug' and password == 'password':
+    if db.try_login(username, password):
 
         # set session cookie and redirect to edit page
         session['logged_in'] = True 
@@ -71,24 +71,6 @@ def login_post():
     else:
         return render_template('login.html', error="Invalid credentials")
     
-# get class data from the catalog
-@app.route('/api/data', methods=['GET'])
-def get_data():
-
-    # look for url parameter
-    search_value = request.args.get('q', '')
-    search_column = request.args.get('column', '')
-
-    # if present, perform the search
-    if search_value:
-
-        data = db.search_db(search_column, search_value)
-        return jsonify(data)
-    else:
-
-        # if not, return the whole catalog
-        return jsonify(db.full_catalog())
-
 # search courses by any combination of filter parameters
 @app.route('/api/search', methods=['GET'])
 def search_courses():

@@ -1,5 +1,33 @@
 import re
+import sqlite3
 
+###################################
+### For accounts and logging in ###
+###################################
+
+def try_login(username, password) -> bool:
+
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    ''')
+
+    cursor.execute('SELECT password FROM users WHERE username = ?', (username,))
+    row = cursor.fetchone()
+    conn.close()
+    if row is None:
+        return False
+    
+    passwd = row[0]
+
+    if passwd == password:
+        return True
+    return False
 
 #################################
 ### Course catalog data        ###
@@ -336,7 +364,9 @@ def _match_course_code(code_query, subj, course_num):
     return True
 
 
-# --- public API --------------------------------------------------------------
+#################################
+### Functions used by the API ###
+#################################
 
 def search_courses(professor='', subject='', level='', course_code='',
                    semester='', days='', crn='') -> list:
@@ -392,27 +422,6 @@ def search_courses(professor='', subject='', level='', course_code='',
             'semester':   sem,
         })
     return results
-
-
-#################################
-### Functions used by the API ###
-#################################
-
-def search_db(column_name: str, value) -> list:
-    '''Search the course catalog with the given collumn name and value, returns a list of rows.\n
-    If an error occurs, return an empty list'''
-
-    # return dummy data for now
-    return [
-        [123, "test class1", "7:00-8:15", "professor joe"],
-        [124, "test class2", "5:00-8:15", "professor bob"],
-        [125, "test class3", "15:00-16:15", "professor will"]
-        ]
-
-
-def full_catalog() -> list:
-    '''Returns the entire course catalog as a list of dicts'''
-    return search_courses()
 
 
 def import_excel(filepath: str, semester: str) -> int:
