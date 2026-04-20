@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Report — Bellini Classes</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
+        nav { background: #006747; color: white; padding: 14px 28px; display: flex; gap: 24px; align-items: center; }
+        nav .brand { font-size: 1.15em; font-weight: bold; margin-right: auto; }
+        nav a { color: #b2dfcf; text-decoration: none; font-size: 0.95em; }
+        nav a:hover { color: white; text-decoration: underline; }
+        nav a.active { color: white; font-weight: bold; }
+        main { max-width: 1300px; margin: 32px auto; padding: 0 20px; }
+        h1 { color: #006747; font-size: 1.6em; margin-bottom: 6px; }
+        .subtitle { color: #555; margin-bottom: 24px; font-size: 0.95em; }
+
+        /* Summary cards */
+        .summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-bottom: 32px; }
+        .summary-card { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); padding: 18px 20px; text-align: center; }
+        .summary-card .num { font-size: 2em; font-weight: bold; color: #006747; }
+        .summary-card .num.bad { color: #dc2626; }
+        .summary-card .num.warn { color: #d97706; }
+        .summary-card .num.ok  { color: #16a34a; }
+        .summary-card .label { font-size: 0.8em; color: #555; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+        /* Toolbar */
+        .toolbar { display: flex; gap: 10px; margin-bottom: 24px; }
+        .btn { padding: 9px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.93em; font-weight: bold; transition: background 0.15s; }
+        .btn-primary { background: #006747; color: white; }
+        .btn-primary:hover { background: #004d35; }
+        .btn-secondary { background: #e4e7ec; color: #333; }
+        .btn-secondary:hover { background: #cdd2db; }
+
+        /* Sections */
+        .section { margin-bottom: 32px; }
+        .section h2 { font-size: 1em; color: #111; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .section h2 .count { background: #dc2626; color: white; border-radius: 10px; padding: 1px 9px; font-size: 0.85em; }
+        .section h2 .count.warn { background: #d97706; }
+        .section h2 .count.ok { background: #16a34a; }
+        .table-wrapper { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #374151; color: white; text-align: left; padding: 10px 12px; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+        tbody td { padding: 9px 12px; border-bottom: 1px solid #eef0f3; font-size: 0.88em; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f9fafb; }
+        .mono { font-family: monospace; font-weight: bold; color: #006747; }
+        .tag-error { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 10px; font-size: 0.78em; font-weight: bold; }
+        .tag-warn  { background: #fff3cd; color: #856404; padding: 2px 8px; border-radius: 10px; font-size: 0.78em; font-weight: bold; }
+        .none-msg { text-align: center; padding: 28px; color: #16a34a; font-weight: bold; font-size: 0.9em; }
+
+        @media print {
+            nav, .toolbar { display: none !important; }
+            body { background: white; }
+            main { margin: 0; padding: 0; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <span class="brand">Bellini Classes</span>
+    <a href="/search">Search Courses</a>
+    <a href="/instructor">Instructor</a>
+    <a href="/edit">Edit</a>
+    <a href="/report" class="active">Audit Report</a>
+    <a href="/login">Login</a>
+</nav>
+<main>
+    <h1>Audit Report</h1>
+    <p class="subtitle">Identifies duplicate CRNs, scheduling conflicts, unreasonable times, and missing data across the full catalog.</p>
+
+    <div class="toolbar">
+        <button class="btn btn-primary" onclick="runReport()">↻ Refresh Report</button>
+        <button class="btn btn-secondary" onclick="window.print()">Print / Export PDF</button>
+    </div>
+
+    <div class="summary-grid" id="summaryGrid">
+        <div class="summary-card"><div class="num" id="s-total">—</div><div class="label">Total Courses</div></div>
+        <div class="summary-card"><div class="num bad" id="s-dup">—</div><div class="label">Duplicate CRNs</div></div>
+        <div class="summary-card"><div class="num bad" id="s-room">—</div><div class="label">Room Conflicts</div></div>
+        <div class="summary-card"><div class="num bad" id="s-instr">—</div><div class="label">Instructor Conflicts</div></div>
+        <div class="summary-card"><div class="num warn" id="s-time">—</div><div class="label">Unreasonable Times</div></div>
+        <div class="summary-card"><div class="num warn" id="s-missing">—</div><div class="label">Missing Data</div></div>
+    </div>
+
+    <!-- Duplicate CRNs -->
+    <div class="section">
+        <h2>Duplicate CRNs <span class="count" id="cnt-dup">0</span></h2>
+        <div class="table-wrapper" id="tbl-dup">
+            <div class="none-msg">✓ No duplicate CRNs found.</div>
+        </div>
+    </div>
+
+    <!-- Room Conflicts -->
+    <div class="section">
+        <h2>Room Conflicts <span class="count" id="cnt-room">0</span></h2>
+        <div class="table-wrapper" id="tbl-room">
+            <div class="none-msg">✓ No room conflicts found.</div>
+        </div>
+    </div>
+
+    <!-- Instructor Conflicts -->
+    <div class="section">
+        <h2>Instructor Conflicts <span class="count" id="cnt-instr">0</span></h2>
+        <div class="table-wrapper" id="tbl-instr">
+            <div class="none-msg">✓ No instructor conflicts found.</div>
+        </div>
+    </div>
+
+    <!-- Unreasonable Times -->
+    <div class="section">
+        <h2>Unreasonable Times <span class="count warn" id="cnt-time">0</span></h2>
+        <div class="table-wrapper" id="tbl-time">
+            <div class="none-msg">✓ No unreasonable times found.</div>
+        </div>
+    </div>
+
+    <!-- Missing Data -->
+    <div class="section">
+        <h2>Missing / Incomplete Data <span class="count warn" id="cnt-missing">0</span></h2>
+        <div class="table-wrapper" id="tbl-missing">
+            <div class="none-msg">✓ No missing data found.</div>
+        </div>
+    </div>
+</main>
+
+<script>
+    async function runReport() {
+        const res  = await fetch('/api/report');
+        const data = await res.json();
+        const s = data.summary;
+
+        // Summary cards
+        document.getElementById('s-total').textContent   = s.total_courses;
+        document.getElementById('s-dup').textContent     = s.duplicate_crns;
+        document.getElementById('s-room').textContent    = s.room_conflicts;
+        document.getElementById('s-instr').textContent   = s.instructor_conflicts;
+        document.getElementById('s-time').textContent    = s.unreasonable_times;
+        document.getElementById('s-missing').textContent = s.missing_data;
+
+        renderDuplicates(data.duplicate_crns);
+        renderRoomConflicts(data.room_conflicts);
+        renderInstrConflicts(data.instructor_conflicts);
+        renderUnreasonable(data.unreasonable_times);
+        renderMissing(data.missing_data);
+    }
+
+    function setCount(id, n) {
+        const el = document.getElementById(id);
+        el.textContent = n;
+        el.className = 'count' + (n === 0 ? ' ok' : '');
+    }
+
+    function renderDuplicates(rows) {
+        setCount('cnt-dup', rows.length);
+        const el = document.getElementById('tbl-dup');
+        if (!rows.length) { el.innerHTML = '<div class="none-msg">✓ No duplicate CRNs found.</div>'; return; }
+        el.innerHTML = `<table><thead><tr><th>CRN</th><th>Course Name</th><th>Semester</th></tr></thead>
+            <tbody>${rows.map(r => `<tr><td class="mono">${r.crn}</td><td>${r.name}</td><td>${r.semester}</td></tr>`).join('')}</tbody></table>`;
+    }
+
+    function renderRoomConflicts(rows) {
+        setCount('cnt-room', rows.length);
+        const el = document.getElementById('tbl-room');
+        if (!rows.length) { el.innerHTML = '<div class="none-msg">✓ No room conflicts found.</div>'; return; }
+        el.innerHTML = `<table><thead><tr><th>Semester</th><th>Room</th><th>CRN 1</th><th>Course 1</th><th>Time 1</th><th>CRN 2</th><th>Course 2</th><th>Time 2</th></tr></thead>
+            <tbody>${rows.map(r => `<tr>
+                <td>${r.semester}</td><td class="mono">${r.room}</td>
+                <td class="mono">${r.crn1}</td><td>${r.name1}</td><td>${r.time1}</td>
+                <td class="mono">${r.crn2}</td><td>${r.name2}</td><td>${r.time2}</td>
+            </tr>`).join('')}</tbody></table>`;
+    }
+
+    function renderInstrConflicts(rows) {
+        setCount('cnt-instr', rows.length);
+        const el = document.getElementById('tbl-instr');
+        if (!rows.length) { el.innerHTML = '<div class="none-msg">✓ No instructor conflicts found.</div>'; return; }
+        el.innerHTML = `<table><thead><tr><th>Semester</th><th>Instructor</th><th>CRN 1</th><th>Course 1</th><th>Time 1</th><th>CRN 2</th><th>Course 2</th><th>Time 2</th></tr></thead>
+            <tbody>${rows.map(r => `<tr>
+                <td>${r.semester}</td><td>${r.instructor}</td>
+                <td class="mono">${r.crn1}</td><td>${r.name1}</td><td>${r.time1}</td>
+                <td class="mono">${r.crn2}</td><td>${r.name2}</td><td>${r.time2}</td>
+            </tr>`).join('')}</tbody></table>`;
+    }
+
+    function renderUnreasonable(rows) {
+        setCount('cnt-time', rows.length);
+        const el = document.getElementById('tbl-time');
+        if (!rows.length) { el.innerHTML = '<div class="none-msg">✓ No unreasonable times found.</div>'; return; }
+        el.innerHTML = `<table><thead><tr><th>CRN</th><th>Course</th><th>Semester</th><th>Time</th><th>Issue</th></tr></thead>
+            <tbody>${rows.map(r => `<tr>
+                <td class="mono">${r.crn}</td><td>${r.name}</td><td>${r.semester}</td>
+                <td>${r.time}</td><td><span class="tag-warn">${r.reason}</span></td>
+            </tr>`).join('')}</tbody></table>`;
+    }
+
+    function renderMissing(rows) {
+        setCount('cnt-missing', rows.length);
+        const el = document.getElementById('tbl-missing');
+        if (!rows.length) { el.innerHTML = '<div class="none-msg">✓ No missing data found.</div>'; return; }
+        el.innerHTML = `<table><thead><tr><th>CRN</th><th>Course</th><th>Semester</th><th>Issues</th></tr></thead>
+            <tbody>${rows.map(r => `<tr>
+                <td class="mono">${r.crn}</td><td>${r.name}</td><td>${r.semester}</td>
+                <td>${r.issues.map(i => `<span class="tag-warn">${i}</span>`).join(' ')}</td>
+            </tr>`).join('')}</tbody></table>`;
+    }
+
+    runReport();
+</script>
+</body>
+</html>

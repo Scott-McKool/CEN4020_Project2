@@ -7,41 +7,21 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
-
-        /* Nav */
         nav {
-            background: #006747;
-            color: white;
-            padding: 14px 28px;
-            display: flex;
-            gap: 24px;
-            align-items: center;
+            background: #006747; color: white;
+            padding: 14px 28px; display: flex; gap: 24px; align-items: center;
         }
         nav .brand { font-size: 1.15em; font-weight: bold; margin-right: auto; }
         nav a { color: #b2dfcf; text-decoration: none; font-size: 0.95em; }
         nav a:hover { color: white; text-decoration: underline; }
         nav a.active { color: white; font-weight: bold; }
-
         main { max-width: 1400px; margin: 32px auto; padding: 0 20px; }
         h1 { color: #006747; font-size: 1.6em; margin-bottom: 6px; }
         .subtitle { color: #555; margin-bottom: 24px; font-size: 0.95em; }
 
         /* Toolbar */
-        .toolbar {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-        .btn {
-            padding: 9px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.93em;
-            font-weight: bold;
-            transition: background 0.15s;
-        }
+        .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+        .btn { padding: 9px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.93em; font-weight: bold; transition: background 0.15s; }
         .btn-primary  { background: #006747; color: white; }
         .btn-primary:hover  { background: #004d35; }
         .btn-secondary { background: #e4e7ec; color: #333; }
@@ -50,115 +30,70 @@
         .btn-save:hover   { background: #004d35; }
         .btn-cancel { background: #e4e7ec; color: #333; }
         .btn-cancel:hover { background: #cdd2db; }
-
-        /* Status */
-        #status {
-            font-size: 0.9em;
-            font-weight: bold;
-            padding: 6px 14px;
-            border-radius: 5px;
-            display: none;
-        }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        #status { font-size: 0.9em; font-weight: bold; padding: 6px 14px; border-radius: 5px; display: none; }
         #status.success { background: #d1fae5; color: #065f46; display: inline-block; }
         #status.error   { background: #fee2e2; color: #991b1b; display: inline-block; }
 
-        /* Add form */
-        .add-form-card {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            padding: 22px 24px;
-            margin-bottom: 24px;
-            display: none;
+        /* Warning banner */
+        .warning-banner {
+            background: #fff3cd; border: 1px solid #ffc107; color: #856404;
+            border-radius: 6px; padding: 12px 16px; margin-bottom: 16px;
+            font-size: 0.92em; display: none;
         }
-        .add-form-card h2 { color: #006747; font-size: 1em; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 14px;
-            margin-bottom: 16px;
-        }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group label {
-            font-size: 0.78em;
-            font-weight: bold;
-            color: #444;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        .form-group input,
-        .form-group select {
-            padding: 8px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 0.93em;
-            width: 100%;
-        }
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #006747;
-            box-shadow: 0 0 0 2px rgba(0,103,71,0.18);
-        }
-        .form-actions { display: flex; gap: 10px; }
+        .warning-banner ul { margin: 6px 0 0 18px; }
+        .warning-banner .dismiss { float: right; cursor: pointer; font-weight: bold; color: #856404; background: none; border: none; font-size: 1em; }
 
-        /* Table */
-        .table-wrapper {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-            overflow: auto;
+        /* Add / Import form cards */
+        .form-card {
+            background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            padding: 22px 24px; margin-bottom: 24px; display: none;
         }
+        .form-card h2 { color: #006747; font-size: 1em; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; margin-bottom: 16px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-size: 0.78em; font-weight: bold; color: #444; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-group input, .form-group select { padding: 8px 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.93em; width: 100%; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #006747; box-shadow: 0 0 0 2px rgba(0,103,71,0.18); }
+        .form-actions { display: flex; gap: 10px; }
+        .import-result { font-size: 0.9em; font-weight: bold; padding: 6px 12px; border-radius: 5px; display: none; }
+        .import-result.success { background: #d1fae5; color: #065f46; display: inline-block; }
+        .import-result.error   { background: #fee2e2; color: #991b1b; display: inline-block; }
+
+        /* Main table */
+        .table-wrapper { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: auto; }
         table { width: 100%; border-collapse: collapse; }
-        thead th {
-            background: #006747;
-            color: white;
-            text-align: left;
-            padding: 11px 10px;
-            font-size: 0.8em;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            white-space: nowrap;
-        }
-        tbody td {
-            padding: 9px 10px;
-            border-bottom: 1px solid #eef0f3;
-            font-size: 0.9em;
-            vertical-align: middle;
-        }
+        thead th { background: #006747; color: white; text-align: left; padding: 11px 10px; font-size: 0.8em; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+        tbody td { padding: 9px 10px; border-bottom: 1px solid #eef0f3; font-size: 0.9em; vertical-align: middle; }
         tbody tr:last-child td { border-bottom: none; }
         tbody tr:hover td { background: #f0f7f4; }
-
-        /* Inline edit inputs */
-        td input, td select {
-            width: 100%;
-            padding: 5px 7px;
-            border: 1px solid #006747;
-            border-radius: 4px;
-            font-size: 0.9em;
-            background: #f0faf6;
-        }
-        td input:focus, td select:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0,103,71,0.2);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 9px;
-            border-radius: 12px;
-            font-size: 0.78em;
-            font-weight: bold;
-        }
+        td input, td select { width: 100%; padding: 5px 7px; border: 1px solid #006747; border-radius: 4px; font-size: 0.9em; background: #f0faf6; }
+        td input:focus, td select:focus { outline: none; box-shadow: 0 0 0 2px rgba(0,103,71,0.2); }
+        .badge { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 0.78em; font-weight: bold; }
         .badge-ug { background: #dbeafe; color: #1d4ed8; }
         .badge-gr { background: #fce7f3; color: #be185d; }
-
         .course-code { font-family: monospace; font-weight: bold; color: #006747; }
-
         .action-cell { white-space: nowrap; display: flex; gap: 6px; }
-
         .empty-state { text-align: center; padding: 56px 20px; color: #888; }
-        .empty-state p { margin-top: 8px; }
+
+        /* Change history */
+        .history-section { margin-top: 36px; }
+        .history-section summary {
+            cursor: pointer; color: #006747; font-weight: bold; font-size: 1em;
+            padding: 12px 16px; background: white; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1); list-style: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .history-section summary::before { content: '▶'; font-size: 0.75em; transition: transform 0.2s; }
+        details[open] .history-section summary::before,
+        .history-section details[open] > summary::before { transform: rotate(90deg); }
+        .history-table-wrap { background: white; border-radius: 0 0 8px 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: auto; margin-top: 2px; }
+        .history-table-wrap table thead th { background: #374151; font-size: 0.78em; }
+        .history-table-wrap table tbody td { font-size: 0.85em; }
+        .diff-cell { font-size: 0.8em; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #555; }
+        .tag-add  { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 10px; font-size: 0.78em; font-weight: bold; }
+        .tag-edit { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 10px; font-size: 0.78em; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -166,7 +101,9 @@
 <nav>
     <span class="brand">Bellini Classes</span>
     <a href="/search">Search Courses</a>
+    <a href="/instructor">Instructor</a>
     <a href="/edit" class="active">Edit</a>
+    <a href="/report">Audit Report</a>
     <a href="/login">Login</a>
 </nav>
 
@@ -175,66 +112,68 @@
     <p class="subtitle">Add new courses or edit existing ones. Changes are saved immediately.</p>
 
     <div class="toolbar">
-        <button class="btn btn-primary" onclick="toggleAddForm()">+ Add New Course</button>
+        <button class="btn btn-primary" onclick="toggleForm('add-form')">+ Add New Course</button>
+        <button class="btn btn-secondary" onclick="toggleForm('import-form')">↑ Import Excel</button>
         <span id="status"></span>
     </div>
 
+    <!-- Warning banner -->
+    <div class="warning-banner" id="warningBanner">
+        <button class="dismiss" onclick="document.getElementById('warningBanner').style.display='none'">✕</button>
+        <strong>⚠ Scheduling Conflicts Detected</strong>
+        <ul id="warningList"></ul>
+    </div>
+
     <!-- Add new course form -->
-    <div class="add-form-card" id="add-form">
+    <div class="form-card" id="add-form">
         <h2>New Course</h2>
         <div class="form-grid">
-            <div class="form-group">
-                <label>CRN *</label>
-                <input type="number" id="new-crn" placeholder="e.g. 91940">
-            </div>
-            <div class="form-group">
-                <label>Course Name *</label>
-                <input type="text" id="new-name" placeholder="e.g. Data Structures">
-            </div>
-            <div class="form-group">
-                <label>Subject</label>
-                <input type="text" id="new-subject" placeholder="e.g. COP">
-            </div>
-            <div class="form-group">
-                <label>Course Number</label>
-                <input type="text" id="new-course-num" placeholder="e.g. 3514">
-            </div>
-            <div class="form-group">
-                <label>Level</label>
+            <div class="form-group"><label>CRN *</label><input type="number" id="new-crn" placeholder="e.g. 91940"></div>
+            <div class="form-group"><label>Course Name *</label><input type="text" id="new-name" placeholder="e.g. Data Structures"></div>
+            <div class="form-group"><label>Subject</label><input type="text" id="new-subject" placeholder="e.g. COP"></div>
+            <div class="form-group"><label>Course Number</label><input type="text" id="new-course-num" placeholder="e.g. 3514"></div>
+            <div class="form-group"><label>Level</label>
                 <select id="new-level">
                     <option value="UG">Undergraduate</option>
                     <option value="GR">Graduate</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Instructor</label>
-                <input type="text" id="new-instructor" placeholder="e.g. Smith, John">
-            </div>
-            <div class="form-group">
-                <label>Time</label>
-                <input type="text" id="new-time" placeholder="e.g. TR 09:30 AM - 10:45 AM">
-            </div>
-            <div class="form-group">
-                <label>Room</label>
-                <input type="text" id="new-room" placeholder="e.g. ENB 118">
-            </div>
-            <div class="form-group">
-                <label>Enrolled</label>
-                <input type="number" id="new-enrolled" placeholder="0" value="0">
-            </div>
-            <div class="form-group">
-                <label>Semester</label>
+            <div class="form-group"><label>Instructor</label><input type="text" id="new-instructor" placeholder="e.g. Smith, John"></div>
+            <div class="form-group"><label>Time</label><input type="text" id="new-time" placeholder="e.g. TR 09:30 AM - 10:45 AM"></div>
+            <div class="form-group"><label>Room</label><input type="text" id="new-room" placeholder="e.g. ENB 118"></div>
+            <div class="form-group"><label>Enrolled</label><input type="number" id="new-enrolled" placeholder="0" value="0"></div>
+            <div class="form-group"><label>TA</label><input type="text" id="new-ta" placeholder="e.g. Smith, Jane"></div>
+            <div class="form-group"><label>Semester</label>
                 <select id="new-semester">
                     <option value="Spring 2025">Spring 2025</option>
                     <option value="Fall 2025">Fall 2025</option>
                     <option value="Spring 2026" selected>Spring 2026</option>
-                    <option value="Summer 2026">Summer 2026</option>
                 </select>
             </div>
         </div>
         <div class="form-actions">
             <button class="btn btn-save" onclick="submitAdd()">Add Course</button>
-            <button class="btn btn-cancel" onclick="toggleAddForm()">Cancel</button>
+            <button class="btn btn-cancel" onclick="toggleForm('add-form')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Import Excel form -->
+    <div class="form-card" id="import-form">
+        <h2>Import Excel File</h2>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr; max-width: 500px;">
+            <div class="form-group"><label>Excel File (.xlsx)</label><input type="file" id="import-file" accept=".xlsx"></div>
+            <div class="form-group"><label>Semester</label>
+                <select id="import-semester">
+                    <option value="Spring 2025">Spring 2025</option>
+                    <option value="Fall 2025">Fall 2025</option>
+                    <option value="Spring 2026" selected>Spring 2026</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-save" onclick="submitImport()">Import</button>
+            <button class="btn btn-cancel" onclick="toggleForm('import-form')">Cancel</button>
+            <span class="import-result" id="import-result"></span>
         </div>
     </div>
 
@@ -242,16 +181,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>CRN</th>
-                    <th>Subject</th>
-                    <th>Course Name</th>
-                    <th>Level</th>
-                    <th>Instructor</th>
-                    <th>Time</th>
-                    <th>Room</th>
-                    <th>Enrolled</th>
-                    <th>Semester</th>
-                    <th>Actions</th>
+                    <th>CRN</th><th>Subject</th><th>Course Name</th><th>Level</th>
+                    <th>Instructor</th><th>TA</th><th>Time</th><th>Room</th><th>Enrolled</th>
+                    <th>Semester</th><th>Actions</th>
                 </tr>
             </thead>
             <tbody id="catalog-body">
@@ -259,11 +191,30 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Change history -->
+    <div class="history-section">
+        <details>
+            <summary>Change History</summary>
+            <div class="history-table-wrap" id="history-container">
+                <table>
+                    <thead><tr>
+                        <th>Time (UTC)</th><th>Action</th><th>CRN</th>
+                        <th>Changed By</th><th>Summary</th><th>Undo</th>
+                    </tr></thead>
+                    <tbody id="history-body">
+                        <tr><td colspan="7" class="empty-state">No changes recorded yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </details>
+    </div>
 </main>
 
 <script>
     let allCourses = [];
 
+    /* ---- table ---- */
     async function loadData() {
         const res = await fetch('/api/search');
         allCourses = await res.json();
@@ -276,7 +227,6 @@
             tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><strong>No courses found.</strong></div></td></tr>`;
             return;
         }
-
         tbody.innerHTML = courses.map(c => {
             const badge = c.level === 'GR'
                 ? '<span class="badge badge-gr">GR</span>'
@@ -287,12 +237,14 @@
                 <td>${c.name}</td>
                 <td>${badge}</td>
                 <td>${c.instructor}</td>
+                <td>${c.ta || '—'}</td>
                 <td>${c.time}</td>
                 <td>${c.room}</td>
                 <td>${c.enrolled}</td>
                 <td>${c.semester}</td>
                 <td><div class="action-cell">
                     <button class="btn btn-secondary" style="padding:5px 12px;font-size:0.85em;" onclick="startEdit(this)">Edit</button>
+                    <button class="btn btn-danger"    style="padding:5px 12px;font-size:0.85em;" onclick="deleteCourse(${c.crn})">Delete</button>
                 </div></td>
             </tr>`;
         }).join('');
@@ -301,33 +253,31 @@
     function startEdit(btn) {
         const tr = btn.closest('tr');
         const crn = tr.dataset.crn;
-        const course = allCourses.find(c => String(c.crn) === crn);
-        if (!course) return;
-
+        const c = allCourses.find(x => String(x.crn) === crn);
+        if (!c) return;
         tr.innerHTML = `
-            <td>${course.crn}</td>
-            <td><input type="text" class="e-subject" value="${course.subject}">
-                <input type="text" class="e-course-num" value="${course.course_num}" style="margin-top:4px;"></td>
-            <td><input type="text" class="e-name" value="${course.name}"></td>
+            <td>${c.crn}</td>
+            <td><input type="text" class="e-subject" value="${c.subject}">
+                <input type="text" class="e-course-num" value="${c.course_num}" style="margin-top:4px;"></td>
+            <td><input type="text" class="e-name" value="${esc(c.name)}"></td>
             <td><select class="e-level">
-                <option value="UG" ${course.level==='UG'?'selected':''}>UG</option>
-                <option value="GR" ${course.level==='GR'?'selected':''}>GR</option>
+                <option value="UG" ${c.level==='UG'?'selected':''}>UG</option>
+                <option value="GR" ${c.level==='GR'?'selected':''}>GR</option>
             </select></td>
-            <td><input type="text" class="e-instructor" value="${course.instructor}"></td>
-            <td><input type="text" class="e-time" value="${course.time}"></td>
-            <td><input type="text" class="e-room" value="${course.room}"></td>
-            <td><input type="number" class="e-enrolled" value="${course.enrolled}" style="width:70px;"></td>
+            <td><input type="text" class="e-instructor" value="${esc(c.instructor)}"></td>
+            <td><input type="text" class="e-ta" value="${esc(c.ta||'')}"></td>
+            <td><input type="text" class="e-time" value="${esc(c.time)}"></td>
+            <td><input type="text" class="e-room" value="${esc(c.room)}"></td>
+            <td><input type="number" class="e-enrolled" value="${c.enrolled}" style="width:70px;"></td>
             <td><select class="e-semester">
-                <option value="Spring 2025" ${course.semester==='Spring 2025'?'selected':''}>Spring 2025</option>
-                <option value="Fall 2025"   ${course.semester==='Fall 2025'?'selected':''}>Fall 2025</option>
-                <option value="Spring 2026" ${course.semester==='Spring 2026'?'selected':''}>Spring 2026</option>
-                <option value="Summer 2026" ${course.semester==='Summer 2026'?'selected':''}>Summer 2026</option>
+                <option value="Spring 2025" ${c.semester==='Spring 2025'?'selected':''}>Spring 2025</option>
+                <option value="Fall 2025"   ${c.semester==='Fall 2025'?'selected':''}>Fall 2025</option>
+                <option value="Spring 2026" ${c.semester==='Spring 2026'?'selected':''}>Spring 2026</option>
             </select></td>
             <td><div class="action-cell">
-                <button class="btn btn-save" style="padding:5px 12px;font-size:0.85em;" onclick="saveEdit(this, ${course.crn})">Save</button>
+                <button class="btn btn-save"   style="padding:5px 12px;font-size:0.85em;" onclick="saveEdit(this,${c.crn})">Save</button>
                 <button class="btn btn-cancel" style="padding:5px 12px;font-size:0.85em;" onclick="loadData()">Cancel</button>
-            </div></td>
-        `;
+            </div></td>`;
     }
 
     async function saveEdit(btn, crn) {
@@ -338,36 +288,36 @@
             course_num: tr.querySelector('.e-course-num').value,
             level:      tr.querySelector('.e-level').value,
             instructor: tr.querySelector('.e-instructor').value,
+            ta:         tr.querySelector('.e-ta').value,
             time:       tr.querySelector('.e-time').value,
             room:       tr.querySelector('.e-room').value,
             enrolled:   parseInt(tr.querySelector('.e-enrolled').value) || 0,
             semester:   tr.querySelector('.e-semester').value,
         };
-
         const res = await fetch(`/api/data/row/${crn}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'PUT', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload),
         });
-
+        const data = await res.json();
         if (res.ok) {
             setStatus('Saved!', 'success');
+            showWarnings(data.warnings);
             loadData();
+            loadHistory();
         } else {
-            const text = await res.text();
-            setStatus(text.includes('Unauthorized') ? 'Not logged in — please log in first.' : 'Save failed.', 'error');
+            setStatus(data.error === 'Unauthorized' ? 'Not logged in.' : (data.message || 'Save failed.'), 'error');
         }
     }
 
-    function toggleAddForm() {
-        const form = document.getElementById('add-form');
-        form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+    /* ---- add ---- */
+    function toggleForm(id) {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
     }
 
     async function submitAdd() {
         const crn = parseInt(document.getElementById('new-crn').value);
         if (!crn) { setStatus('CRN is required.', 'error'); return; }
-
         const payload = {
             crn,
             name:       document.getElementById('new-name').value,
@@ -375,37 +325,126 @@
             course_num: document.getElementById('new-course-num').value,
             level:      document.getElementById('new-level').value,
             instructor: document.getElementById('new-instructor').value,
+            ta:         document.getElementById('new-ta').value,
             time:       document.getElementById('new-time').value,
             room:       document.getElementById('new-room').value,
             enrolled:   parseInt(document.getElementById('new-enrolled').value) || 0,
             semester:   document.getElementById('new-semester').value,
         };
-
         const res = await fetch('/api/data/row/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload),
         });
-
+        const data = await res.json();
         if (res.ok) {
             setStatus('Course added!', 'success');
-            toggleAddForm();
+            showWarnings(data.warnings);
+            toggleForm('add-form');
+            loadData();
+            loadHistory();
+        } else {
+            setStatus(data.error === 'Unauthorized' ? 'Not logged in.' : (data.message || 'Failed.'), 'error');
+        }
+    }
+
+    /* ---- delete ---- */
+    async function deleteCourse(crn) {
+        if (!confirm(`Delete CRN ${crn}? This cannot be undone (unless you use the change history undo).`)) return;
+        const res  = await fetch(`/api/data/row/${crn}`, { method: 'DELETE' });
+        const data = await res.json();
+        setStatus(data.message, res.ok ? 'success' : 'error');
+        if (res.ok) { loadData(); loadHistory(); }
+    }
+
+    /* ---- import excel ---- */
+    async function submitImport() {
+        const fileInput = document.getElementById('import-file');
+        const semester  = document.getElementById('import-semester').value;
+        const resultEl  = document.getElementById('import-result');
+        if (!fileInput.files.length) { resultEl.textContent = 'Please select a file.'; resultEl.className = 'import-result error'; return; }
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('semester', semester);
+        const res  = await fetch('/api/import-excel', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (res.ok) {
+            resultEl.textContent = data.message;
+            resultEl.className = 'import-result success';
             loadData();
         } else {
-            const text = await res.text();
-            setStatus(text.includes('Unauthorized') ? 'Not logged in — please log in first.' : 'Failed to add course.', 'error');
+            resultEl.textContent = data.error || 'Import failed.';
+            resultEl.className = 'import-result error';
         }
+    }
+
+    /* ---- history ---- */
+    async function loadHistory() {
+        const res = await fetch('/api/history');
+        if (!res.ok) return;
+        const entries = await res.json();
+        const tbody = document.getElementById('history-body');
+        if (entries.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No changes recorded yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = entries.map(e => {
+            const tag = e.action === 'add'
+                ? '<span class="tag-add">ADD</span>'
+                : '<span class="tag-edit">EDIT</span>';
+            const summary = e.action === 'edit' && e.old_values
+                ? diffSummary(e.old_values, e.new_values)
+                : 'New course added';
+            return `<tr>
+                <td>${e.timestamp.replace('T',' ').slice(0,19)}</td>
+                <td>${tag}</td>
+                <td>${e.crn}</td>
+                <td>${e.username}</td>
+                <td class="diff-cell" title="${summary}">${summary}</td>
+                <td><button class="btn btn-danger" style="padding:4px 10px;font-size:0.8em;" onclick="undoChange(${e.id})">Undo</button></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function diffSummary(oldV, newV) {
+        const changed = [];
+        for (const k of Object.keys(newV)) {
+            if (oldV[k] !== undefined && String(oldV[k]) !== String(newV[k])) {
+                changed.push(`${k}: "${oldV[k]}" → "${newV[k]}"`);
+            }
+        }
+        return changed.length ? changed.join('; ') : 'No changes';
+    }
+
+    async function undoChange(id) {
+        const res  = await fetch(`/api/history/${id}/undo`, { method: 'POST' });
+        const data = await res.json();
+        setStatus(data.message, res.ok ? 'success' : 'error');
+        loadData();
+        loadHistory();
+    }
+
+    /* ---- helpers ---- */
+    function showWarnings(warnings) {
+        const banner = document.getElementById('warningBanner');
+        const list   = document.getElementById('warningList');
+        if (!warnings || warnings.length === 0) { banner.style.display = 'none'; return; }
+        list.innerHTML = warnings.map(w => `<li>${w}</li>`).join('');
+        banner.style.display = 'block';
     }
 
     function setStatus(msg, type) {
         const el = document.getElementById('status');
         el.textContent = msg;
         el.className = type;
-        setTimeout(() => { el.textContent = ''; el.className = ''; }, 4000);
+        setTimeout(() => { el.textContent = ''; el.className = ''; }, 5000);
+    }
+
+    function esc(s) {
+        return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     loadData();
+    loadHistory();
 </script>
-
 </body>
 </html>

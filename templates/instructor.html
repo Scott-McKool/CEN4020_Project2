@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Dashboard — Bellini Classes</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
+        nav {
+            background: #006747; color: white;
+            padding: 14px 28px; display: flex; gap: 24px; align-items: center;
+        }
+        nav .brand { font-size: 1.15em; font-weight: bold; margin-right: auto; }
+        nav a { color: #b2dfcf; text-decoration: none; font-size: 0.95em; }
+        nav a:hover { color: white; text-decoration: underline; }
+        nav a.active { color: white; font-weight: bold; }
+        main { max-width: 1250px; margin: 32px auto; padding: 0 20px; }
+        h1 { color: #006747; font-size: 1.6em; margin-bottom: 6px; }
+        .subtitle { color: #555; margin-bottom: 24px; font-size: 0.95em; }
+        .search-card {
+            background: white; padding: 22px 24px; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1); margin-bottom: 28px;
+            display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap;
+        }
+        .search-card label { font-size: 0.78em; font-weight: bold; color: #444; text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 5px; }
+        .search-card input {
+            padding: 8px 11px; border: 1px solid #ccc; border-radius: 5px;
+            font-size: 0.93em; width: 320px;
+        }
+        .search-card input:focus { outline: none; border-color: #006747; box-shadow: 0 0 0 2px rgba(0,103,71,0.18); }
+        .btn { padding: 9px 22px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.93em; font-weight: bold; transition: background 0.15s; }
+        .btn-primary { background: #006747; color: white; }
+        .btn-primary:hover { background: #004d35; }
+        .conflict-banner {
+            background: #fff3cd; border: 1px solid #ffc107; color: #856404;
+            border-radius: 6px; padding: 12px 16px; margin-bottom: 16px;
+            font-size: 0.92em; font-weight: bold; display: none;
+        }
+        .results-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; min-height: 32px; }
+        .result-count { color: #555; font-size: 0.9em; }
+        .table-wrapper { background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); overflow: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead th { background: #006747; color: white; text-align: left; padding: 11px 13px; font-size: 0.82em; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
+        tbody td { padding: 10px 13px; border-bottom: 1px solid #eef0f3; font-size: 0.91em; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f0f7f4; }
+        tbody tr.conflict-row td { background: #fff3cd; }
+        tbody tr.conflict-row:hover td { background: #ffe99a; }
+        .badge { display: inline-block; padding: 2px 9px; border-radius: 12px; font-size: 0.78em; font-weight: bold; }
+        .badge-ug { background: #dbeafe; color: #1d4ed8; }
+        .badge-gr { background: #fce7f3; color: #be185d; }
+        .course-code { font-family: monospace; font-weight: bold; color: #006747; }
+        .empty-state { text-align: center; padding: 56px 20px; color: #888; }
+    </style>
+</head>
+<body>
+<nav>
+    <span class="brand">Bellini Classes</span>
+    <a href="/search">Search Courses</a>
+    <a href="/instructor" class="active">Instructor</a>
+    <a href="/edit">Edit</a>
+    <a href="/report">Audit Report</a>
+    <a href="/login">Login</a>
+</nav>
+<main>
+    <h1>Instructor Dashboard</h1>
+    <p class="subtitle">Enter an instructor's name to view their full teaching schedule across all semesters.</p>
+
+    <div class="search-card">
+        <div>
+            <label for="instrInput">Instructor Name</label>
+            <input type="text" id="instrInput" placeholder="e.g. Fang  or  Fang, Suey-Chyun">
+        </div>
+        <button class="btn btn-primary" onclick="loadSchedule()">View Schedule</button>
+    </div>
+
+    <div class="conflict-banner" id="conflictBanner"></div>
+
+    <div class="results-bar">
+        <span class="result-count" id="resultCount"></span>
+    </div>
+
+    <div id="resultsContainer"></div>
+</main>
+
+<script>
+    async function loadSchedule() {
+        const name = document.getElementById('instrInput').value.trim();
+        if (!name) return;
+        const res  = await fetch('/api/instructor?name=' + encodeURIComponent(name));
+        const data = await res.json();
+        renderSchedule(data.courses, data.conflicts);
+    }
+
+    function renderSchedule(courses, conflictCrns) {
+        const conflictSet = new Set(conflictCrns);
+        const count = courses.length;
+        document.getElementById('resultCount').textContent =
+            count === 0 ? 'No courses found.' : `Showing ${count} course${count !== 1 ? 's' : ''}`;
+
+        const banner = document.getElementById('conflictBanner');
+        if (conflictCrns.length > 0) {
+            banner.style.display = 'block';
+            banner.textContent = `⚠ Warning: ${conflictCrns.length} section(s) have overlapping time conflicts (highlighted below).`;
+        } else {
+            banner.style.display = 'none';
+        }
+
+        if (count === 0) {
+            document.getElementById('resultsContainer').innerHTML =
+                '<div class="empty-state"><strong>No courses found for this instructor.</strong></div>';
+            return;
+        }
+
+        const rows = courses.map(c => {
+            const badge = c.level === 'GR'
+                ? '<span class="badge badge-gr">GR</span>'
+                : '<span class="badge badge-ug">UG</span>';
+            const cls = conflictSet.has(c.crn) ? ' class="conflict-row"' : '';
+            return `<tr${cls}>
+                <td>${c.crn}</td>
+                <td class="course-code">${c.subject} ${c.course_num}</td>
+                <td>${c.name}</td>
+                <td>${badge}</td>
+                <td>${c.time}</td>
+                <td>${c.room}</td>
+                <td>${c.enrolled}</td>
+                <td>${c.semester}</td>
+            </tr>`;
+        }).join('');
+
+        document.getElementById('resultsContainer').innerHTML = `
+            <div class="table-wrapper">
+                <table>
+                    <thead><tr>
+                        <th>CRN</th><th>Subject</th><th>Course Name</th><th>Level</th>
+                        <th>Time</th><th>Room</th><th>Enrolled</th><th>Semester</th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+    }
+
+    document.getElementById('instrInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') loadSchedule();
+    });
+</script>
+</body>
+</html>

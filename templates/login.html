@@ -1,16 +1,70 @@
 <!DOCTYPE html>
-<html>
-<head><title>Login</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Bellini Classes</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; color: #222; }
+        nav {
+            background: #006747; color: white;
+            padding: 14px 28px; display: flex; gap: 24px; align-items: center;
+        }
+        nav .brand { font-size: 1.15em; font-weight: bold; margin-right: auto; }
+        nav a { color: #b2dfcf; text-decoration: none; font-size: 0.95em; }
+        nav a:hover { color: white; text-decoration: underline; }
+        nav a.active { color: white; font-weight: bold; }
+        main { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 52px); padding: 20px; }
+        .login-card {
+            background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            padding: 36px 40px; width: 100%; max-width: 380px;
+        }
+        .login-card h1 { color: #006747; font-size: 1.4em; margin-bottom: 6px; }
+        .login-card p  { color: #666; font-size: 0.9em; margin-bottom: 28px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+        .form-group label { font-size: 0.78em; font-weight: bold; color: #444; text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-group input {
+            padding: 10px 12px; border: 1px solid #ccc; border-radius: 5px; font-size: 0.95em;
+        }
+        .form-group input:focus { outline: none; border-color: #006747; box-shadow: 0 0 0 2px rgba(0,103,71,0.18); }
+        .error-msg { background: #fee2e2; color: #991b1b; border-radius: 5px; padding: 10px 14px; font-size: 0.9em; margin-bottom: 16px; }
+        .btn-login {
+            width: 100%; padding: 11px; background: #006747; color: white;
+            border: none; border-radius: 5px; font-size: 1em; font-weight: bold;
+            cursor: pointer; transition: background 0.15s; margin-top: 4px;
+        }
+        .btn-login:hover { background: #004d35; }
+    </style>
+</head>
 <body>
-    <h2>Login to Edit</h2>
-    {% if error %} <p style="color:red;">{{ error }}</p> {% endif %}
-    
-    <form method="POST" action="/login">
-        <label>Username:</label>
-        <input type="text" name="username" required><br><br>
-        <label>Password:</label>
-        <input type="password" name="password" required><br><br>
-        <button type="submit">Login</button>
-    </form>
+<nav>
+    <span class="brand">Bellini Classes</span>
+    <a href="/search">Search Courses</a>
+    <a href="/instructor">Instructor</a>
+    <a href="/edit">Edit</a>
+    <a href="/report">Audit Report</a>
+    <a href="/login" class="active">Login</a>
+</nav>
+<main>
+    <div class="login-card">
+        <h1>Sign In</h1>
+        <p>Log in to edit the course catalog.</p>
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-login">Login</button>
+        </form>
+    </div>
+</main>
 </body>
 </html>
